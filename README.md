@@ -4,12 +4,12 @@ IPC HOMEWORK
 1. Overview
 ------------
 
-It is the homework of "Linux Programming" and is about IPC (Inter Process Comunication). 
+    It is the homework of "Linux Programming" and is about IPC (Inter Process Comunication). 
 
-And this homework has to version:
+    And this homework has to version:
 
-+   FIFO Version   (Stand-along)
-+   Socket Version (Network)
+    +   FIFO Version   (Stand-along)
+    +   Socket Version (Network)
 
 2. FIFO And Socket Interface
 ----------------------------
