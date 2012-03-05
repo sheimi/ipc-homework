@@ -1,5 +1,6 @@
 #include <lib/request_parser.h>
 #include <stdio.h>
+#include <string.h>
 
 //server side function
 
@@ -11,8 +12,12 @@ char buf[BUFSIZE];
 
 Request * get_request() {
   char * ptr = buf;
+  char * ptr2;
   int i; 
   int cmd;
+  
+  memset(buf, 0, sizeof(buf));
+
   fscanf(stdin, "%d", &cmd); 
   request.cmd = (RequestCMD)cmd;
   fscanf(stdin, "%d", &request.param_num);
@@ -20,6 +25,8 @@ Request * get_request() {
   for (i = 0; i < request.param_num - 1; i++) {
     request.params[i] = ptr;
     while (*ptr++ != ' '); 
+    ptr2 = ptr - 1;
+    *ptr2 = '\0';
   }
   request.params[i] = ptr;
   return &request;
@@ -52,8 +59,10 @@ int * send_request() {
 
 Response * get_response() {
   char * ptr = buf;
+  char * ptr2;
   int i; 
   int rs;
+  memset(buf, 0, sizeof(buf));
   fscanf(stdin, "%d", &rs); 
   response.rs= (ResponseStatus)rs;
   fscanf(stdin, "%d", &response.param_num);
@@ -61,6 +70,8 @@ Response * get_response() {
   for (i = 0; i < response.param_num - 1; i++) {
     response.params[i] = ptr;
     while (*ptr++ != ' '); 
+    ptr2 = ptr - 1;
+    *ptr2 = '\0';
   }
   response.params[i] = ptr;
   return &response;

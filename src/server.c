@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <lib/request_parser.h>
 
 #define CHILD_NUM 10
 
@@ -43,6 +44,8 @@ static pid_t child_make(int i, int listenfd) {
     fprintf(stdout, "sendback\n");
     fflush(stdout);
     fprintf(stderr, "got it %s\n", buf);
+    Request * re = get_request();
+    fprintf(stderr, "%s %s\n", re->params[0], re->params[1]);
   }
   exit(0);
 }
