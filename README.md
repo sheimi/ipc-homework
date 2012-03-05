@@ -46,7 +46,7 @@ Server Design
 Transaction Design
 ---------------------
 
-### 1 The State Machie Model
+### 1. The State Machie Model
 
                 +----------------+
                 |build Connection|-------------------------+
