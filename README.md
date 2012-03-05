@@ -1,7 +1,7 @@
 IPC HOMEWORK
 ============
 
-1. Overview
+Overview
 ------------
 
     It is the homework of "Linux Programming" and is about IPC (Inter Process Comunication). 
@@ -11,10 +11,10 @@ IPC HOMEWORK
     +   FIFO Version   (Stand-along)
     +   Socket Version (Network)
 
-2. FIFO And Socket Interface
+FIFO And Socket Interface
 ----------------------------
 
-### 2.1 Interface
+### 1. Interface
 
     Server Side: 
       int init_server();
@@ -26,28 +26,27 @@ IPC HOMEWORK
       
     (TODO)
 
-### 2.2 FIFO
+### 2. FIFO
 
     (TODO)
 
-### 2.3 SOCKET
+### 3. SOCKET
 
     (TODO)
 
-3. Server Design
+Server Design
 ----------------
 
-### 3.1 Cocurent
+### 1. Cocurent
     
     It is a Cocurent Server: Preforked Server, No Locking Around accept.
 
     (TODO)
 
-4. Transaction Design
+Transaction Design
 ---------------------
 
-### 4.1 The State Machie Model
-------------------------------
+### 1 The State Machie Model
 
                 +----------------+
                 |build Connection|-------------------------+
