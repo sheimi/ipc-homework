@@ -18,12 +18,13 @@ int init_server() {
 int wait_client(int fd) {
   int writefifo;
   int readfifo;
-  char buf[1024];
+  char buf[10];
   char name_r[30];
   char name_w[30];
   fprintf(stderr, "process %ld inner waiting\n", (long)getpid());
   int r;
-  r = readline(fd, buf, 1024); 
+
+  r = readline_wrapper(fd, buf, 10); 
 
   fprintf(stderr, "\n%s  %d\n", buf, r);
 

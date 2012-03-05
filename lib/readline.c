@@ -29,9 +29,10 @@ ssize_t readline(int fd, void * vptr, size_t maxlen) {
   char * ptr;
   ptr = vptr;
   for (n = 1; n < maxlen; n++) {
-    if ((rc = my_read(fd, &c)) == -1) {
+    if ((rc = my_read(fd, &c)) == 1) {
       *ptr++ = c;
-      if (c == '\n')
+      //if (c == '\n')
+      if (c == ' ')
         break;
       } else if (rc == 0) {
       *ptr = 0;
