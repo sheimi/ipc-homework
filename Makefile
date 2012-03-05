@@ -2,8 +2,8 @@ CC=gcc
 LIB_SRC=lib
 INC=include
 CFLAGS=-I$(INC) -Wall -c
-SERVER_OBJS=error.o wrapper.o fifo.o server.o readline.o
-CLIENT_OBJS=error.o wrapper.o fifo.o client.o readline.o
+SERVER_OBJS=error.o wrapper.o fifo.o server.o readline.o request_parser.o
+CLIENT_OBJS=error.o wrapper.o fifo.o client.o readline.o request_parser.o
 STARGET=server
 CTARGET=client
 ifneq ($(DEBUG),)
@@ -36,6 +36,9 @@ wrapper.o: lib/wrapper.c
 	$(CC) $(CFLAGS) $<
 
 readline.o: lib/readline.c
+	$(CC) $(CFLAGS) $<
+
+request_parser.o: lib/request_parser.c
 	$(CC) $(CFLAGS) $<
 
 
