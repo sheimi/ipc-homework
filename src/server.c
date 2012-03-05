@@ -5,6 +5,8 @@
 #include <signal.h>
 #include <fcntl.h>
 
+#define CHILD_NUM 10
+
 static pid_t child_make(int i, int listenfd);
 static void sig_int(int signo); 
 
@@ -13,9 +15,9 @@ pid_t * pids;
 
 int main(int argc, char * argv[]) {
   int listenfd;
-  int num = 10;
+  int num = CHILD_NUM;
   int i;
-  idle_num = 10;
+  idle_num = CHILD_NUM;
 
   listenfd = init_server();
   pids = (pid_t *)(malloc(sizeof(pid_t) * num));
@@ -40,7 +42,7 @@ static pid_t child_make(int i, int listenfd) {
     fscanf(stdin, "%s", buf);
     fprintf(stdout, "sendback\n");
     fflush(stdout);
-    fprintf(stderr, "gotit %s\n", buf);
+    fprintf(stderr, "got it %s\n", buf);
   }
   exit(0);
 }
