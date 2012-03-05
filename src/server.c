@@ -35,7 +35,12 @@ static pid_t child_make(int i, int listenfd) {
   if ((pid = fork_wrapper()) > 0)
     return pid;
   while(true) {
+    char buf[32];
     wait_client(listenfd);
+    fscanf(stdin, "%s", buf);
+    fprintf(stdout, "sendback\n");
+    fflush(stdout);
+    fprintf(stderr, "gotit %s\n", buf);
   }
   exit(0);
 }

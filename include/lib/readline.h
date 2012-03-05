@@ -10,5 +10,6 @@
 #define MAX_SIZE 1024
 
 ssize_t readline_wrapper(int fd, void * ptr, size_t maxlen);
+ssize_t readline_nobuf_wrapper(int fd, void * ptr, size_t maxlen); 
 
 #endif
