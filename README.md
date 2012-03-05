@@ -54,7 +54,7 @@ Transaction Design
                         |                                  |
                         v                                  v
                 +----------------+                     +-----------------+
-        +-----> |  verify user   |-------------------->|distory connecton|
+        +-----> |  verify user   |-------------------->| close connecton |
         |       +----------------+                     +-----------------+
         |failed    |    |                                  ^  ^
         +----------+    |success                           |  |
