@@ -9,7 +9,7 @@ typedef enum _server_state {
   IDLE,
 } ServerState;
 
-ServerState state;
+static ServerState state;
 
 static void login(Request * request);
 static void register_u(Request * request);

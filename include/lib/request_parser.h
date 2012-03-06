@@ -1,6 +1,8 @@
 #ifndef REQUEST_PARSER_H
 #define REQUEST_PARSER_H
 
+#include <stdio.h>
+
 typedef enum _request_cmd {
   LOGIN,  
   REGISTER,
@@ -38,4 +40,6 @@ Response * get_response();
 extern Request request;
 extern Response response;
 
+extern FILE * readport;
+extern FILE * writeport;
 #endif

@@ -9,7 +9,7 @@ LIB_DIR=lib
 FIFO_DIR=fifo
 
 SERVER_OBJS=$(LIB_DIR)/error.o $(LIB_DIR)/wrapper.o $(FIFO_DIR)/fifo.o $(SERVER_DIR)/server.o $(LIB_DIR)/readline.o $(LIB_DIR)/request_parser.o $(SERVER_DIR)/transaction.o $(SERVER_DIR)/db.o
-CLIENT_OBJS=$(LIB_DIR)/error.o $(LIB_DIR)/wrapper.o $(FIFO_DIR)/fifo.o $(CLIENT_DIR)/client.o $(LIB_DIR)/readline.o $(LIB_DIR)/request_parser.o
+CLIENT_OBJS=$(LIB_DIR)/error.o $(LIB_DIR)/wrapper.o $(FIFO_DIR)/fifo.o $(CLIENT_DIR)/client.o $(LIB_DIR)/readline.o $(LIB_DIR)/request_parser.o $(CLIENT_DIR)/c_transaction.o
 STARGET=server
 CTARGET=client
 ifneq ($(DEBUG),)
@@ -52,6 +52,9 @@ transaction.o: $(SERVER_DIR)/transaction.c
 
 db.o: $(SERVER_DIR)/db.c
 	$(CC) $(CFLAGS) $< -o $(SERVER_DIR)/db.o
+
+c_transaction.o: $(CLIENT_DIR)/c_transaction.o
+	$(CC) $(CFLAGS) $< -o $(CLIENT_DIR)/c_transaction.o
 
 clean:
 	rm -f *.o

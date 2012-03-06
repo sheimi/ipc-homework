@@ -22,7 +22,7 @@ int init_server();
 /*
  *  waiting for the connect from the server, including:
  *    wait for the connection
- *    dup the fifo descriptors to stdin and stdout
+ *    dup the fifo descriptors to two files 
  *
  */
 int wait_client();
@@ -31,7 +31,7 @@ int wait_client();
 /*
  *  to init the fifo client, including:
  *    try to connect to the fifo server
- *    dup the fifo descriptors to stdin and stdout
+ *    dup the fifo descriptors to two files
  *
  */
 int init_client();

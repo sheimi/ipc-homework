@@ -3,8 +3,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <lib/readline.h>
+#include <lib/request_parser.h>
 
-int dummyfd;
+static int dummyfd;
 
 int init_server() {
   int readfifo;
@@ -40,26 +41,23 @@ int wait_client(int fd) {
   sprintf(name_w, CHILD_CHANNAL, pid);
   mkfifo_wrapper(name_w, FIFO_MODE);
   writefifo = open_wrapper(name_w, O_WRONLY, 0);
-  close_wrapper(1);
-  dup2_wrapper(writefifo, STDOUT_FILENO);
-  close_wrapper(writefifo);
+  writeport = fdopen(writefifo, "w");
 
   //set confirm
   fprintf(stderr, "request recieved...\n");
-  fprintf(stdout, "%ld\n", (long)getpid()); 
-  fflush(stdout);
+  fprintf(writeport, "%ld\n", (long)getpid()); 
+  fflush(writeport);
 
   readfifo = open_wrapper(name_r, O_RDONLY, 0);
-  close_wrapper(0);
-  dup2_wrapper(readfifo, STDIN_FILENO);
-  close_wrapper(readfifo);
+  readport = fdopen(readfifo, "r");
   
   //built
-  fscanf(stdin, "%s", buf);
+  fscanf(readport, "%s", buf);
   fprintf(stderr, "connection built ...\n");
 
   return 0;
 } 
+
 
 int init_client() {
   char buf[INFO_MSG];
@@ -77,22 +75,18 @@ int init_client() {
   sprintf(name_r, CHILD_CHANNAL, pid);
   mkfifo_wrapper(name_r, FIFO_MODE);
   int readfifo = open_wrapper(name_r, O_RDONLY, 0);
-  close_wrapper(0);
-  dup2_wrapper(readfifo, STDIN_FILENO);
-  fscanf(stdin, "%s", buf);
+  readport = fdopen(readfifo, "r");
+  fscanf(readport, "%s", buf);
   fprintf(stderr, "receive confirmed...\n");
-  close_wrapper(readfifo);
   
   //build channel
   pid = atoi(buf);
   sprintf(name_w, CHILD_CHANNAL, pid);
   writefifo = open_wrapper(name_w, O_WRONLY, 0);
-  close_wrapper(1);
-  dup2_wrapper(writefifo, STDOUT_FILENO);
-  close_wrapper(writefifo);
+  writeport = fdopen(writefifo, "w"); 
 
-  fprintf(stdout, "confirm\n");
-  fflush(stdout);
+  fprintf(writeport, "confirm\n");
+  fflush(writeport);
   
   return 0;
 }
