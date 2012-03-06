@@ -4,6 +4,7 @@
 typedef enum _request_cmd {
   LOGIN,  
   REGISTER,
+  QUIT,
 } RequestCMD;
 
 typedef struct _request {

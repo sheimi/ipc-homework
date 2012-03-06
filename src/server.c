@@ -5,6 +5,7 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <lib/request_parser.h>
+#include <server/transaction.h>
 
 #define CHILD_NUM 10
 
@@ -38,14 +39,8 @@ static pid_t child_make(int i, int listenfd) {
   if ((pid = fork_wrapper()) > 0)
     return pid;
   while(true) {
-    char buf[32];
     wait_client(listenfd);
-    fscanf(stdin, "%s", buf);
-    fprintf(stdout, "sendback\n");
-    fflush(stdout);
-    fprintf(stderr, "got it %s\n", buf);
-    Request * re = get_request();
-    fprintf(stderr, "%s %s\n", re->params[0], re->params[1]);
+    start_transaction();
   }
   exit(0);
 }

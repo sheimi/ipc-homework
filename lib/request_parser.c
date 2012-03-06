@@ -12,7 +12,6 @@ char buf[BUFSIZE];
 
 Request * get_request() {
   char * ptr = buf;
-  char * ptr2;
   int i; 
   int cmd;
   
@@ -21,20 +20,17 @@ Request * get_request() {
   fscanf(stdin, "%d", &cmd); 
   request.cmd = (RequestCMD)cmd;
   fscanf(stdin, "%d", &request.param_num);
-  fgets(buf, BUFSIZE, stdin);
-  for (i = 0; i < request.param_num - 1; i++) {
+  for (i = 0; i < request.param_num; i++) {
     request.params[i] = ptr;
-    while (*ptr++ != ' '); 
-    ptr2 = ptr - 1;
-    *ptr2 = '\0';
+    fscanf(stdin, "%s", ptr);
+    ptr = ptr + strlen(ptr) + 1;
   }
-  request.params[i] = ptr;
   return &request;
 }
 
 int * send_response() {
   int i;
-  fprintf(stdout, "%d %d", response.rs, response.param_num);
+  fprintf(stdout, "%d %d ", response.rs, response.param_num);
   for (i = 0; i < response.param_num; i++) {
     fputs(response.params[i],stdout);
     fputs(" ", stdout);
@@ -47,7 +43,7 @@ int * send_response() {
 
 int * send_request() {
   int i;
-  fprintf(stdout, "%d %d", request.cmd, request.param_num);
+  fprintf(stdout, "%d %d ", request.cmd, request.param_num);
   for (i = 0; i < request.param_num; i++) {
     fputs(request.params[i],stdout);
     fputs(" ", stdout);
@@ -59,21 +55,17 @@ int * send_request() {
 
 Response * get_response() {
   char * ptr = buf;
-  char * ptr2;
   int i; 
   int rs;
   memset(buf, 0, sizeof(buf));
   fscanf(stdin, "%d", &rs); 
   response.rs= (ResponseStatus)rs;
   fscanf(stdin, "%d", &response.param_num);
-  fgets(buf, BUFSIZE, stdin);
-  for (i = 0; i < response.param_num - 1; i++) {
+  for (i = 0; i < response.param_num; i++) {
     response.params[i] = ptr;
-    while (*ptr++ != ' '); 
-    ptr2 = ptr - 1;
-    *ptr2 = '\0';
+    fscanf(stdin, "%s", ptr);
+    ptr = ptr + strlen(ptr) + 1;
   }
-  response.params[i] = ptr;
   return &response;
 }
 

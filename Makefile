@@ -2,7 +2,7 @@ CC=gcc
 LIB_SRC=lib
 INC=include
 CFLAGS=-I$(INC) -Wall -c
-SERVER_OBJS=error.o wrapper.o fifo.o server.o readline.o request_parser.o
+SERVER_OBJS=error.o wrapper.o fifo.o server.o readline.o request_parser.o transaction.o
 CLIENT_OBJS=error.o wrapper.o fifo.o client.o readline.o request_parser.o
 STARGET=server
 CTARGET=client
@@ -41,6 +41,8 @@ readline.o: lib/readline.c
 request_parser.o: lib/request_parser.c
 	$(CC) $(CFLAGS) $<
 
+transaction.o: src/transaction.c
+	$(CC) $(CFLAGS) $<
 
 clean:
 	rm -f *.o
