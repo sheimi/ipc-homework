@@ -14,8 +14,8 @@ typedef struct _request {
 } Request;
 
 typedef enum _request_status {
-  LOGIN_R,
-  REGISTER_R,
+  SUCCESS,
+  FAILED,
 } ResponseStatus;
 
 typedef struct _response {

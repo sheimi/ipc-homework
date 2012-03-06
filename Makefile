@@ -1,8 +1,8 @@
 CC=gcc
 LIB_SRC=lib
 INC=include
-CFLAGS=-I$(INC) -Wall -c
-SERVER_OBJS=error.o wrapper.o fifo.o server.o readline.o request_parser.o transaction.o
+CFLAGS=-I$(INC) -Wall -c 
+SERVER_OBJS=error.o wrapper.o fifo.o server.o readline.o request_parser.o transaction.o db.o
 CLIENT_OBJS=error.o wrapper.o fifo.o client.o readline.o request_parser.o
 STARGET=server
 CTARGET=client
@@ -15,7 +15,7 @@ endif
 all: clean server client
 
 server: $(SERVER_OBJS)
-	$(CC) $(SERVER_OBJS) -o $(STARGET)
+	$(CC) $(SERVER_OBJS) -o $(STARGET) -L /usr/lib/sqlite3 -lsqlite3
 
 client: $(CLIENT_OBJS)
 	$(CC) $(CLIENT_OBJS) -o $(CTARGET)
@@ -42,6 +42,9 @@ request_parser.o: lib/request_parser.c
 	$(CC) $(CFLAGS) $<
 
 transaction.o: src/transaction.c
+	$(CC) $(CFLAGS) $<
+
+db.o: src/db.c
 	$(CC) $(CFLAGS) $<
 
 clean:

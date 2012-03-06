@@ -7,7 +7,7 @@
 #include <lib/request_parser.h>
 #include <server/transaction.h>
 
-#define CHILD_NUM 10
+#define CHILD_NUM 2 
 
 static pid_t child_make(int i, int listenfd);
 static void sig_int(int signo); 
