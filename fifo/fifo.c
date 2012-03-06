@@ -13,6 +13,8 @@ int init_server() {
   readfifo = open_wrapper(SERV_FIFO, O_RDONLY, 0); 
   //readfifo = open_wrapper(SERV_FIFO, O_RDONLY | O_NONBLOCK, 0); 
   dummyfd = open_wrapper(SERV_FIFO, O_WRONLY, 0);
+  readport = NULL;
+  writeport = NULL;
   return readfifo;
 }
 
@@ -25,6 +27,11 @@ int wait_client(int fd) {
   char name_w[NAME_LEN];
 
   int r;
+
+  if (readport || writeport) {
+    fclose(readport);
+    fclose(writeport);
+  }
   
   sprintf(name_r, CHILD_CHANNAL, (int)getpid());
   mkfifo_wrapper(name_r, FIFO_MODE);
@@ -92,7 +99,7 @@ int init_client() {
 }
 
 int close_client() {
-  close_wrapper(0);
-  close_wrapper(1);
+  fclose(readport);
+  fclose(writeport);
   return 0;
 }
