@@ -19,15 +19,16 @@ void start_transaction() {
         init_handler(); 
         break;
       case C_QUITED:
-        request.cmd = QUIT;
-        request.param_num = 0;
-        send_request();
+        send_request(QUIT, 0, NULL);
         return;
       case C_LOGIN:
         login_handler();
         break;
       case C_REGISTER:
         break;
+      case C_VERIFIED:
+        fprintf(stderr, "verified\n");
+        return;
     }
   }
 }
@@ -51,12 +52,22 @@ static void init_handler() {
 static void login_handler() {
   char username[30];
   char password[30];
+  char * params[2];
   print_info();
   fputs("username: ", stdout);
   fscanf(stdin, "%s", username);
   fputs("password: ", stdout);
   fscanf(stdin, "%s", password); 
   fprintf(stdout, "%s %s\n", username, password);
+  params[0] = username;
+  params[1] = password;
+  send_request(LOGIN, 2, params);
+  Response * response = get_response();
+  if (response->rs == SUCCESS) {
+    status = C_VERIFIED;
+  } else {
+    status = C_INIT;
+  }
 }
 
 void print_info() {

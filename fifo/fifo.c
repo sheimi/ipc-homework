@@ -19,8 +19,6 @@ int init_server() {
 }
 
 int wait_client(int fd) {
-  int writefifo;
-  int readfifo;
   char buf[INFO_MSG];
 
   char name_r[NAME_LEN];
@@ -47,16 +45,14 @@ int wait_client(int fd) {
   //dup 
   sprintf(name_w, CHILD_CHANNAL, pid);
   mkfifo_wrapper(name_w, FIFO_MODE);
-  writefifo = open_wrapper(name_w, O_WRONLY, 0);
-  writeport = fdopen(writefifo, "w");
+  writeport = fopen(name_w, "w");
 
   //set confirm
   fprintf(stderr, "request recieved...\n");
   fprintf(writeport, "%ld\n", (long)getpid()); 
   fflush(writeport);
 
-  readfifo = open_wrapper(name_r, O_RDONLY, 0);
-  readport = fdopen(readfifo, "r");
+  readport = fopen(name_r, "r");
   
   //built
   fscanf(readport, "%s", buf);
@@ -81,19 +77,18 @@ int init_client() {
   //wait for confirm
   sprintf(name_r, CHILD_CHANNAL, pid);
   mkfifo_wrapper(name_r, FIFO_MODE);
-  int readfifo = open_wrapper(name_r, O_RDONLY, 0);
-  readport = fdopen(readfifo, "r");
+  readport = fopen(name_r, "r");
   fscanf(readport, "%s", buf);
   fprintf(stderr, "receive confirmed...\n");
   
   //build channel
   pid = atoi(buf);
   sprintf(name_w, CHILD_CHANNAL, pid);
-  writefifo = open_wrapper(name_w, O_WRONLY, 0);
-  writeport = fdopen(writefifo, "w"); 
+  writeport = fopen(name_w, "w"); 
 
   fprintf(writeport, "confirm\n");
   fflush(writeport);
+  fprintf(stderr, "confirm sent\n");
   
   return 0;
 }

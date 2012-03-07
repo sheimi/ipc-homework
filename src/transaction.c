@@ -15,6 +15,7 @@ static void login(Request * request);
 static void register_u(Request * request);
 
 int start_transaction() {
+
   state = INIT;
   connect_db();
   while (true) {
@@ -22,6 +23,7 @@ int start_transaction() {
     switch(request->cmd) {
       case LOGIN:
         login(request);
+        fprintf(stderr, "LOGIN\n");
         break;
       case REGISTER:
         register_u(request);
@@ -42,24 +44,26 @@ int start_transaction() {
 
 static void login(Request * request) {
   bool result = check_user(request->params[0], request->params[1]);
-  response.param_num = 0;
+  ResponseStatus rs;
   if (result) {
-    response.rs = SUCCESS;
+    rs = SUCCESS;
     state = VERIFIED; 
   } else {
-    response.rs = FAILED;
+    rs = FAILED;
   }
-  send_response();
+  int n = fileno(writeport);
+  fprintf(stdout, "%d\n", n);
+  send_response(rs, 0, NULL);
 }
 
 static void register_u(Request * request) {
   bool result = register_user(request->params[0], request->params[1]);
-  response.param_num = 0;
+  ResponseStatus rs;
   if (result) {
-    response.rs = SUCCESS;
+    rs = SUCCESS;
     state = VERIFIED; 
   } else {
-    response.rs = FAILED;
+    rs = FAILED;
   }
-  send_response();
+  send_response(rs, 0, NULL);
 }

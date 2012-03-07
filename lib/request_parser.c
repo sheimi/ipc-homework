@@ -31,12 +31,11 @@ Request * get_request() {
   return &request;
 }
 
-int * send_response() {
+int send_response(ResponseStatus rs, int num, char * params[]) {
   int i;
-  fprintf(writeport, "%d %d ", response.rs, response.param_num);
-  for (i = 0; i < response.param_num; i++) {
-    fputs(response.params[i],writeport);
-    fputs(" ", writeport);
+  fprintf(writeport, "%d %d ", rs, num);
+  for (i = 0; i < num; i++) {
+    fprintf(writeport, "%s ", params[i]);
   }
   fflush(writeport);
   return 0;
@@ -44,12 +43,11 @@ int * send_response() {
 
 //client side function
 
-int * send_request() {
+int send_request(RequestCMD cmd, int num, char * params[]) {
   int i;
-  fprintf(writeport, "%d %d ", request.cmd, request.param_num);
-  for (i = 0; i < request.param_num; i++) {
-    fputs(request.params[i],writeport);
-    fputs(" ", writeport);
+  fprintf(writeport, "%d %d ", cmd, num);
+  for (i = 0; i < num; i++) {
+    fprintf(writeport, "%s ", params[i]);
   }
   fflush(writeport);
   return 0;

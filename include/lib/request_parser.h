@@ -12,7 +12,7 @@ typedef enum _request_cmd {
 typedef struct _request {
   RequestCMD cmd;
   int param_num;
-  char * params[];
+  char * params[10];
 } Request;
 
 typedef enum _request_status {
@@ -23,18 +23,18 @@ typedef enum _request_status {
 typedef struct _response {
   ResponseStatus rs;
   int param_num;
-  char * params[];
+  char * params[10];
 } Response;
 
 
 //server side function
 
 Request  * get_request();
-int * send_response();
+int send_response(ResponseStatus rs, int num, char * params[]); 
 
 //client side function
 
-int * send_request();
+int send_request(RequestCMD cmd, int num, char * params[]); 
 Response * get_response();
 
 extern Request request;
