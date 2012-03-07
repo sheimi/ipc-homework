@@ -51,8 +51,6 @@ static void login(Request * request) {
   } else {
     rs = FAILED;
   }
-  int n = fileno(writeport);
-  fprintf(stdout, "%d\n", n);
   send_response(rs, 0, NULL);
 }
 

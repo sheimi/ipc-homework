@@ -4,8 +4,8 @@
 
 //server side function
 
-Request request;
-Response response;
+static Request request;
+static Response response;
 
 FILE * readport;
 FILE * writeport;

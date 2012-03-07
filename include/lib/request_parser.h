@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#define MAX_PARAM_NUM 10
+
 typedef enum _request_cmd {
   LOGIN,  
   REGISTER,
@@ -12,7 +14,7 @@ typedef enum _request_cmd {
 typedef struct _request {
   RequestCMD cmd;
   int param_num;
-  char * params[10];
+  char * params[MAX_PARAM_NUM];
 } Request;
 
 typedef enum _request_status {
@@ -23,7 +25,7 @@ typedef enum _request_status {
 typedef struct _response {
   ResponseStatus rs;
   int param_num;
-  char * params[10];
+  char * params[MAX_PARAM_NUM];
 } Response;
 
 
@@ -36,9 +38,6 @@ int send_response(ResponseStatus rs, int num, char * params[]);
 
 int send_request(RequestCMD cmd, int num, char * params[]); 
 Response * get_response();
-
-extern Request request;
-extern Response response;
 
 extern FILE * readport;
 extern FILE * writeport;

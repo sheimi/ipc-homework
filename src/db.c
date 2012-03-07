@@ -35,8 +35,6 @@ bool register_user(char * username, char * password) {
   sprintf(sql, "select * from user where username=\"%s\"", username); 
   sqlite3_get_table(db, sql, &dbr, &nrow, &ncolumn, &errmsg);
   sqlite3_free_table(dbr);
-  fprintf(stderr, "%s\n", sql);
-  fprintf(stderr, "%d, %d\n", nrow, ncolumn);
   if (nrow > 0)
     return false;
   sprintf(sql, "insert into user(\"username\", \"password\") values(\"%s\", \"%s\")", username, password);
