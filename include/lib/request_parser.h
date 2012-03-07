@@ -9,6 +9,9 @@ typedef enum _request_cmd {
   LOGIN,  
   REGISTER,
   QUIT,
+  QUERY_STATIONS,
+  QUERY_TRAIN,
+  BUY_IT,
 } RequestCMD;
 
 typedef struct _request {
@@ -24,15 +27,15 @@ typedef enum _request_status {
 
 typedef struct _response {
   ResponseStatus rs;
-  int param_num;
-  char * params[MAX_PARAM_NUM];
+  int length;
+  char * data;
 } Response;
 
 
 //server side function
 
 Request  * get_request();
-int send_response(ResponseStatus rs, int num, char * params[]); 
+int send_response(ResponseStatus rs, int length, char * data); 
 
 //client side function
 

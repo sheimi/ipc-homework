@@ -12,11 +12,13 @@ void get_str(char * info, char * result);
 static void init_handler();
 static void login_handler();
 static void register_handler();
+static void verified_handler();
+static void order_handler();
 
 void start_transaction() {
   status = C_INIT;
   while (true) {
-    fprintf(stderr, "Loop.....\n");
+    fprintf(stderr, "Working.....\n");
     switch(status) {
       case C_INIT:
       case C_VERIFY_ERROR:
@@ -32,8 +34,13 @@ void start_transaction() {
         register_handler();
         break;
       case C_VERIFIED:
-        fprintf(stderr, "verified\n");
-        return;
+        verified_handler();
+        break;
+      case C_ORDER:
+        order_handler();
+        break;
+      default:
+        break;
     }
   }
 }
@@ -87,7 +94,7 @@ static void register_handler() {
   get_str("username: ", username);
   do {
     if (try > 0) {
-      fputs("password not the same, try again\n", stderr);
+      fputs("password not the same, try again\n", stdout);
     }
     get_str("password: ", password);
     get_str("repeat password: ", password_r);
@@ -110,6 +117,73 @@ static void register_handler() {
 
 }
 
+static void verified_handler() {
+  print_info();
+  char c = get_choice();
+  switch(c) {
+    case '1':
+      status = C_ORDER;
+      break;
+    case '2':
+      status = C_REFUND;
+      break;
+    case '3':
+      status = C_QUITED;
+      break;
+  }
+}
+
+static void order_handler() {
+  char * pch;
+  char origin[32];
+  char terminal[32];
+  char * params[2] = {origin, terminal};
+
+  print_info();
+  //query the stations
+  send_request(QUERY_STATIONS, 0, NULL);
+  Response * response = get_response();
+
+  //print data from server
+  pch = strtok(response->data, " "); 
+  while(pch != NULL) {
+    fprintf(stdout, "    %s\n", pch);
+    pch = strtok(NULL, " ");
+  }
+
+  //get origin and des
+  get_str("Your Origin Station :  ", origin);
+  get_str("Your Terminal Station :  ", terminal);
+  send_request(QUERY_TRAIN, 2, params); 
+
+  response = get_response();
+  
+  fputs("Available trains : \n", stdout);
+  //print data from server
+  pch = strtok(response->data, " "); 
+  while(pch != NULL) {
+    fprintf(stdout, "  train name: %s", pch);
+    pch = strtok(NULL, " ");
+    fprintf(stdout, "  start station: %s", pch);
+    pch = strtok(NULL, " ");
+    fprintf(stdout, "  end station: %s\n", pch);
+    pch = strtok(NULL, " ");
+  }
+  
+  //origin -> train name;  terminal -> date;
+  get_str("train name: ", origin);
+  get_str("your date (YYYY-MM-DD) : ", terminal);
+  send_request(BUY_IT, 2, params);
+
+  response = get_response();
+  if (response->rs == SUCCESS) {
+    fputs("Your reservation has been rendered\n", stdout); 
+  } else {
+    fputs("No more seat for your train on that date\n", stdout); 
+  }
+  status = C_VERIFIED;
+}
+
 void print_info() {
   switch(status) {
     case C_VERIFY_ERROR:
@@ -121,7 +195,18 @@ void print_info() {
       fputs("    3. QUIT\n", stdout);
       break;
     case C_LOGIN:
+    case C_REGISTER:
       fputs("Please enter your username and password\n", stdout);
+      break;
+    case C_VERIFIED:
+      fputs("Welcome Back..., Please Choose Your Operation...: \n", stdout);
+      fputs("    1. Order Ticket.\n", stdout);
+      fputs("    2. Refund.\n", stdout);
+      fputs("    3. QUIT\n", stdout);
+      break;
+    case C_ORDER:
+      fputs("Here is the available station, Please choose your origin station and terminal station\n", stdout);
+    default:
       break;
   }
 }
@@ -138,5 +223,5 @@ void get_str(char * info, char * result) {
   fputs(info, stdout);
   //purge the stdin stream
   fpurge(stdin);
-  fscanf("%s", result);
+  fscanf(stdin, "%s", result);
 }

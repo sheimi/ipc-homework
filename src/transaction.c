@@ -13,6 +13,9 @@ static ServerState state;
 
 static void login(Request * request);
 static void register_u(Request * request);
+static void query_stations();
+static void query_train(Request * request); 
+static void buy_it(Request * request);
 
 int start_transaction() {
 
@@ -23,7 +26,6 @@ int start_transaction() {
     switch(request->cmd) {
       case LOGIN:
         login(request);
-        fprintf(stderr, "LOGIN\n");
         break;
       case REGISTER:
         register_u(request);
@@ -33,6 +35,15 @@ int start_transaction() {
         state = IDLE;
         close_db();
         return 0;
+      case QUERY_STATIONS:
+        query_stations();
+        break;
+      case QUERY_TRAIN:
+        query_train(request);
+        break;
+      case BUY_IT:
+        buy_it(request);
+        break;
     }
   }
   return 0;
@@ -60,6 +71,50 @@ static void register_u(Request * request) {
   if (result) {
     rs = SUCCESS;
     state = VERIFIED; 
+  } else {
+    rs = FAILED;
+  }
+  send_response(rs, 0, NULL);
+}
+
+static void query_stations() {
+  char ** dbr = 0;
+  int row, column;
+  char buf[4096];
+  char * p = buf;
+  int i;
+  row = 0;
+  column = 0;
+  query_stations_db(&dbr, &row, &column); 
+  for (i = column; i < (row + 1) * column; i++) {
+    sprintf(p, "%s ", dbr[i]); 
+    p += strlen(dbr[i]) + 1;
+  } 
+  send_response(SUCCESS, strlen(buf) + 1, buf);
+  release_dbr(dbr);
+}
+
+static void query_train(Request * request) {
+  char ** dbr = 0;
+  int row, column;
+  char buf[4096];
+  char * p = buf;
+  int i;
+  query_train_db(&dbr, &row, &column, request->params[0], request->params[1]);  
+  for (i = column; i < (row + 1) * column; i++) {
+    sprintf(p, "%s ", dbr[i]); 
+    p += strlen(dbr[i]) + 1;
+  } 
+  send_response(SUCCESS, strlen(buf) + 1, buf);
+  release_dbr(dbr);
+}
+
+
+static void buy_it(Request * request) {
+  int rs;
+  bool result = buy_ticket_db(request->params[0], request->params[1]);
+  if (result) {
+    rs = SUCCESS;
   } else {
     rs = FAILED;
   }
