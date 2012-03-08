@@ -108,8 +108,6 @@ bool query_orders_db(char *** dbr, int * nrow, int * ncolumn) {
 
 bool delete_order_db(char * order_id) {
   char sql[128];
-  int nrow, ncolumn;
-  char ** dbr;
   char * errmsg;
 
   sprintf(sql, "delete from sell_log where id = %s", order_id);

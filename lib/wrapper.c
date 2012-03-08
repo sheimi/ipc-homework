@@ -5,6 +5,8 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <signal.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 pid_t fork_wrapper() {
   pid_t pid;
@@ -52,3 +54,72 @@ sigfunc signal_wrapper(int signo, sigfunc func) {
     err_quit("signal error");
   return oact.sa_handler;
 }
+
+int tcp_listen(const char * host, const char * serv, socklen_t * addrlenp) {
+  int       listenfd, n;
+  const int   on = 1;
+  struct addrinfo hints, *res, *ressave;
+
+  bzero(&hints, sizeof(struct addrinfo));
+  hints.ai_flags = AI_PASSIVE;
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+
+  if ( (n = getaddrinfo(host, serv, &hints, &res)) != 0)
+    err_quit("socket err");
+  ressave = res;
+
+  do {
+    listenfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (listenfd < 0)
+      continue;   /*  error, try next one */
+
+    setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+    if (bind(listenfd, res->ai_addr, res->ai_addrlen) == 0)
+      break;      /*  success */
+
+    close(listenfd);  /*  bind error, close and try next one */
+  } while ( (res = res->ai_next) != NULL);
+
+  if (res == NULL)  /*  errno from final socket() or bind() */
+    err_quit("socket err");
+
+  listen(listenfd, 1024);
+
+  if (addrlenp)
+    *addrlenp = res->ai_addrlen;  /*  return size of protocol address*/ 
+  freeaddrinfo(ressave);
+  return(listenfd);
+}
+
+
+int tcp_connect(const char *host, const char *serv) {
+  int       sockfd, n;
+  struct addrinfo hints, *res, *ressave;
+
+  bzero(&hints, sizeof(struct addrinfo));
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+
+  if ( (n = getaddrinfo(host, serv, &hints, &res)) != 0)
+    err_quit("tcp_connect error for");
+  ressave = res;
+
+  do {
+    sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+    if (sockfd < 0)
+      continue; 
+
+    if (connect(sockfd, res->ai_addr, res->ai_addrlen) == 0)
+      break;    
+
+    close_wrapper(sockfd);  
+  } while ( (res = res->ai_next) != NULL);
+
+  if (res == NULL)  
+    err_quit("tcp_connect error");
+
+  freeaddrinfo(ressave);
+
+  return sockfd;
+} 

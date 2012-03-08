@@ -7,16 +7,27 @@ SERVER_DIR=src
 CLIENT_DIR=client_src
 LIB_DIR=lib
 FIFO_DIR=fifo
+SOCKET_DIR=socket
 
-SERVER_OBJS=$(LIB_DIR)/error.o $(LIB_DIR)/wrapper.o $(FIFO_DIR)/fifo.o $(SERVER_DIR)/server.o $(LIB_DIR)/readline.o $(LIB_DIR)/request_parser.o $(SERVER_DIR)/transaction.o $(SERVER_DIR)/db.o
-CLIENT_OBJS=$(LIB_DIR)/error.o $(LIB_DIR)/wrapper.o $(FIFO_DIR)/fifo.o $(CLIENT_DIR)/client.o $(LIB_DIR)/readline.o $(LIB_DIR)/request_parser.o $(CLIENT_DIR)/c_transaction.o
+SERVER_OBJS=$(LIB_DIR)/error.o $(LIB_DIR)/wrapper.o $(SERVER_DIR)/server.o $(LIB_DIR)/readline.o $(LIB_DIR)/request_parser.o $(SERVER_DIR)/transaction.o $(SERVER_DIR)/db.o
+CLIENT_OBJS=$(LIB_DIR)/error.o $(LIB_DIR)/wrapper.o $(CLIENT_DIR)/client.o $(LIB_DIR)/readline.o $(LIB_DIR)/request_parser.o $(CLIENT_DIR)/c_transaction.o
 STARGET=server
 CTARGET=client
+
 ifneq ($(DEBUG),)
 	CFLAGS += -g -DDEBUG
 else
 	CFLAGS += -O2
 endif
+
+ifeq ($(TYPE),fifo)
+	SERVER_OBJS += $(FIFO_DIR)/fifo.o
+	CLIENT_OBJS += $(FIFO_DIR)/fifo.o
+else
+	SERVER_OBJS += $(SOCKET_DIR)/socket.o
+	CLIENT_OBJS += $(SOCKET_DIR)/socket.o
+endif
+
 
 all: clean server client
 
@@ -34,6 +45,9 @@ client.o: $(CLIENT_DIR)/client.c
 
 fifo.o: $(FIFO_DIR)/fifo.c
 	$(CC) $(CFLAGS) $< -o $(FIFO_DIR)/fifo.o
+
+socket.o: $(SOCKET_DIR)/socket.c
+	$(CC) $(CFLAGS) $< -o $(SOCKET_DIR)/socket.o
 
 error.o: $(LIB_DIR)/error.c
 	$(CC) $(CFLAGS) $< -o $(LIB_DIR)/error.o
