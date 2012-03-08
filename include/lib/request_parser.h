@@ -12,6 +12,8 @@ typedef enum _request_cmd {
   QUERY_STATIONS,
   QUERY_TRAIN,
   BUY_IT,
+  QUERY_ORDERS,
+  REFUND,
 } RequestCMD;
 
 typedef struct _request {

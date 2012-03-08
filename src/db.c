@@ -97,6 +97,27 @@ bool buy_ticket_db(char * trainname, char * date) {
   return true;
 }
 
+bool query_orders_db(char *** dbr, int * nrow, int * ncolumn) {
+  char sql[256];
+  char * errmsg;
+  sprintf(sql, "select sell_log.id, train.name, buy_date from sell_log,"
+                " train where sell_log.user_id = %d and train.id = sell_log.train_id", user_id);
+  sqlite3_get_table(db, sql, dbr, nrow, ncolumn, &errmsg);
+  return true;
+}
+
+bool delete_order_db(char * order_id) {
+  char sql[128];
+  int nrow, ncolumn;
+  char ** dbr;
+  char * errmsg;
+
+  sprintf(sql, "delete from sell_log where id = %s", order_id);
+  sqlite3_exec(db, sql, NULL, NULL, &errmsg); 
+
+  return true;
+}
+
 void release_dbr(char ** dbr) {
   sqlite3_free_table(dbr); 
 }

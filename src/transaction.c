@@ -16,6 +16,8 @@ static void register_u(Request * request);
 static void query_stations();
 static void query_train(Request * request); 
 static void buy_it(Request * request);
+static void query_orders();
+static void refund_orders(Request * request);
 
 int start_transaction() {
 
@@ -43,6 +45,14 @@ int start_transaction() {
         break;
       case BUY_IT:
         buy_it(request);
+        break;
+      case QUERY_ORDERS:
+        query_orders();
+        break;
+      case REFUND:
+        refund_orders(request);
+        break;
+      default:
         break;
     }
   }
@@ -113,6 +123,33 @@ static void query_train(Request * request) {
 static void buy_it(Request * request) {
   int rs;
   bool result = buy_ticket_db(request->params[0], request->params[1]);
+  if (result) {
+    rs = SUCCESS;
+  } else {
+    rs = FAILED;
+  }
+  send_response(rs, 0, NULL);
+}
+
+static void query_orders() {
+  char ** dbr = 0;
+  int row, column;
+  char buf[4096];
+  char * p = buf;
+  int i;
+
+  query_orders_db(&dbr, &row, &column);
+  for (i = column; i < (row + 1) * column; i++) {
+    sprintf(p, "%s ", dbr[i]); 
+    p += strlen(dbr[i]) + 1;
+  } 
+  send_response(SUCCESS, strlen(buf) + 1, buf);
+  release_dbr(dbr);
+}
+
+static void refund_orders(Request * request) {
+  int rs;
+  bool result = delete_order_db(request->params[0]);
   if (result) {
     rs = SUCCESS;
   } else {

@@ -14,6 +14,7 @@ static void login_handler();
 static void register_handler();
 static void verified_handler();
 static void order_handler();
+static void refund_handler();
 
 void start_transaction() {
   status = C_INIT;
@@ -39,6 +40,8 @@ void start_transaction() {
       case C_ORDER:
         order_handler();
         break;
+      case C_REFUND:
+        refund_handler();
       default:
         break;
     }
@@ -135,9 +138,9 @@ static void verified_handler() {
 
 static void order_handler() {
   char * pch;
-  char origin[32];
-  char terminal[32];
-  char * params[2] = {origin, terminal};
+  char arg1[32];
+  char arg2[32];
+  char * args[2] = {arg1, arg2};
 
   print_info();
   //query the stations
@@ -152,9 +155,9 @@ static void order_handler() {
   }
 
   //get origin and des
-  get_str("Your Origin Station :  ", origin);
-  get_str("Your Terminal Station :  ", terminal);
-  send_request(QUERY_TRAIN, 2, params); 
+  get_str("Your Origin Station :  ", arg1);
+  get_str("Your Terminal Station :  ", arg2);
+  send_request(QUERY_TRAIN, 2, args) ; 
 
   response = get_response();
   
@@ -171,9 +174,9 @@ static void order_handler() {
   }
   
   //origin -> train name;  terminal -> date;
-  get_str("train name: ", origin);
-  get_str("your date (YYYY-MM-DD) : ", terminal);
-  send_request(BUY_IT, 2, params);
+  get_str("train name: ", arg1);
+  get_str("your date (YYYY-MM-DD) : ", arg2);
+  send_request(BUY_IT, 2, args);
 
   response = get_response();
   if (response->rs == SUCCESS) {
@@ -184,10 +187,42 @@ static void order_handler() {
   status = C_VERIFIED;
 }
 
+static void refund_handler() {
+  char arg1[32];
+  char * pch;
+  char * args[1] = {arg1};
+  send_request(QUERY_ORDERS, 0, NULL); 
+  Response * response = get_response();
+
+  pch = strtok(response->data, " "); 
+  while(pch != NULL) {
+    fprintf(stdout, "  order id: %s", pch);
+    pch = strtok(NULL, " ");
+    fprintf(stdout, "  train name: %s", pch);
+    pch = strtok(NULL, " ");
+    fprintf(stdout, "  date: %s\n", pch);
+    pch = strtok(NULL, " ");
+  }
+
+  get_str("order your choose (order id): ", arg1);
+  
+  send_request(REFUND, 1, args);
+  response = get_response();
+
+  if (response->rs == SUCCESS) {
+    fputs("Your order has been deleted successfully\n", stdout); 
+  } else {
+    fputs("Encounter an error\n", stdout); 
+  }
+  
+  status = C_VERIFIED;
+}
+
 void print_info() {
+  fputs("\n\n", stdout);
   switch(status) {
     case C_VERIFY_ERROR:
-      fputs("Encounter an error when you input your information\n\n", stdout);
+      fputs("Encounter an error when you input your information\n", stdout);
     case C_INIT:
       fputs("Welcome To the Ticket Reserve System, Please Choose Your Operation:\n", stdout);
       fputs("    1. Log In\n", stdout);
@@ -206,6 +241,8 @@ void print_info() {
       break;
     case C_ORDER:
       fputs("Here is the available station, Please choose your origin station and terminal station\n", stdout);
+    case C_REFUND:
+      fputs("Here is your orders, please choose one to refund: \n", stdout);
     default:
       break;
   }
