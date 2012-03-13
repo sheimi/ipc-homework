@@ -23,6 +23,7 @@ endif
 ifeq ($(TYPE),fifo)
 	SERVER_OBJS += $(FIFO_DIR)/fifo.o
 	CLIENT_OBJS += $(FIFO_DIR)/fifo.o
+	CFLAGS += -DFIFO
 else
 	SERVER_OBJS += $(SOCKET_DIR)/socket.o
 	CLIENT_OBJS += $(SOCKET_DIR)/socket.o

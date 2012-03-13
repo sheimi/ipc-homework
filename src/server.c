@@ -1,4 +1,8 @@
-#include <fifo/fifo.h>
+#ifdef FIFO
+  #include <fifo/fifo.h>
+#else
+  #include <socket/socket.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
