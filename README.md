@@ -37,6 +37,10 @@ Before make it, sqlite3 should be installed
 Run
 ---
 
+The SQL File is ./db/train.sql
+DB File is ./db/train.db
+log File is ./db/ticket.log
+
     client
 
     server [num (the number of preforked process)]
