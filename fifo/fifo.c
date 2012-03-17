@@ -4,14 +4,25 @@
 #include <stdio.h>
 #include <lib/readline.h>
 #include <lib/request_parser.h>
+#include <lib/lock.h>
+
+#define FIFO_DIR "/tmp/ticket"
+#define LOCK_FILE "/tmp/lock.fifo_ticket"
 
 static int dummyfd;
 
 int init_server() {
   int readfifo;
+  int flags;
+  lock_init(LOCK_FILE);
+  mkdir(FIFO_DIR, 0755);
   mkfifo_wrapper(SERV_FIFO, FIFO_MODE);
-  readfifo = open_wrapper(SERV_FIFO, O_RDONLY, 0); 
-  //readfifo = open_wrapper(SERV_FIFO, O_RDONLY | O_NONBLOCK, 0); 
+  //readfifo = open_wrapper(SERV_FIFO, O_RDONLY, 0); 
+  readfifo = open_wrapper(SERV_FIFO, O_RDONLY | O_NONBLOCK, 0); 
+
+  flags = fcntl(readfifo, F_GETFL);
+  fcntl(readfifo, F_SETFL, flags & ~O_NONBLOCK);
+
   dummyfd = open_wrapper(SERV_FIFO, O_WRONLY, 0);
   readport = NULL;
   writeport = NULL;
@@ -34,10 +45,16 @@ int wait_client(int fd) {
   sprintf(name_r, CHILD_CHANNAL, (int)getpid());
   mkfifo_wrapper(name_r, FIFO_MODE);
 
+  //lock_file
   //waiting for request
+  lock_wait();
+#ifdef DEBUG
   fprintf(stderr, "process %ld waiting\n", (long)getpid());
+#endif
   r = readline_nobuf_wrapper(fd, buf, INFO_MSG); 
+#ifdef DEBUG
   fprintf(stderr, "process %ld running\n", (long)getpid());
+#endif
 
   buf[r-1] = '\0';
   int pid = atoi(buf);
@@ -48,7 +65,9 @@ int wait_client(int fd) {
   writeport = fopen(name_w, "w");
 
   //set confirm
+#ifdef DEBUG
   fprintf(stderr, "request recieved...\n");
+#endif
   fprintf(writeport, "%ld\n", (long)getpid()); 
   fflush(writeport);
 
@@ -56,7 +75,11 @@ int wait_client(int fd) {
   
   //built
   fscanf(readport, "%s", buf);
+#ifdef DEBUG
   fprintf(stderr, "connection built ...\n");
+#endif
+  //lock_release
+  lock_release();
 
   return 0;
 } 
@@ -79,7 +102,9 @@ int init_client() {
   mkfifo_wrapper(name_r, FIFO_MODE);
   readport = fopen(name_r, "r");
   fscanf(readport, "%s", buf);
+#ifdef DEBUG
   fprintf(stderr, "receive confirmed...\n");
+#endif
   
   //build channel
   pid = atoi(buf);
@@ -88,7 +113,9 @@ int init_client() {
 
   fprintf(writeport, "confirm\n");
   fflush(writeport);
+#ifdef DEBUG
   fprintf(stderr, "confirm sent\n");
+#endif
   
   return 0;
 }

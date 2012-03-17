@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <server/db.h>
 
+#define LOG_FILE "db/ticket.log"
+
+FILE * log_file;
+
 typedef enum _server_state {
   INIT,
   VERIFIED,
@@ -21,6 +25,8 @@ static void refund_orders(Request * request);
 
 int start_transaction() {
 
+  log_file = fopen(LOG_FILE, "a");
+
   state = INIT;
   connect_db();
   while (true) {
@@ -36,6 +42,7 @@ int start_transaction() {
         fprintf(stderr, "QUIT\n");
         state = IDLE;
         close_db();
+        fclose(log_file);
         return 0;
       case QUERY_STATIONS:
         query_stations();
@@ -63,10 +70,13 @@ int start_transaction() {
  *  the transaction methods
  */
 
+char username[30];
+
 static void login(Request * request) {
   bool result = check_user(request->params[0], request->params[1]);
   ResponseStatus rs;
   if (result) {
+    strcpy(username, request->params[0]);
     rs = SUCCESS;
     state = VERIFIED; 
   } else {
@@ -79,6 +89,7 @@ static void register_u(Request * request) {
   bool result = register_user(request->params[0], request->params[1]);
   ResponseStatus rs;
   if (result) {
+    strcpy(username, request->params[0]);
     rs = SUCCESS;
     state = VERIFIED; 
   } else {
@@ -124,6 +135,7 @@ static void buy_it(Request * request) {
   int rs;
   bool result = buy_ticket_db(request->params[0], request->params[1]);
   if (result) {
+    fprintf(log_file, "order: %s, %s, %s\n", username, request->params[0], request->params[1]); 
     rs = SUCCESS;
   } else {
     rs = FAILED;
@@ -139,11 +151,15 @@ static void query_orders() {
   int i;
 
   query_orders_db(&dbr, &row, &column);
-  for (i = column; i < (row + 1) * column; i++) {
-    sprintf(p, "%s ", dbr[i]); 
-    p += strlen(dbr[i]) + 1;
-  } 
-  send_response(SUCCESS, strlen(buf) + 1, buf);
+  if (row > 0) {
+    for (i = column; i < (row + 1) * column; i++) {
+      sprintf(p, "%s ", dbr[i]); 
+      p += strlen(dbr[i]) + 1;
+    } 
+    send_response(SUCCESS, strlen(buf) + 1, buf);
+  } else {
+    send_response(FAILED, 0, 0);
+  }
   release_dbr(dbr);
 }
 
@@ -151,6 +167,7 @@ static void refund_orders(Request * request) {
   int rs;
   bool result = delete_order_db(request->params[0]);
   if (result) {
+    fprintf(log_file, "refund: %s, %s\n", username, request->params[0]); 
     rs = SUCCESS;
   } else {
     rs = FAILED;

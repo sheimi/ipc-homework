@@ -11,19 +11,27 @@
 #include <lib/request_parser.h>
 #include <server/transaction.h>
 
-#define CHILD_NUM 2 
-
 static pid_t child_make(int i, int listenfd);
 static void sig_int(int signo); 
+static void print_usage();
 
 int idle_num;
 pid_t * pids;
 
+
 int main(int argc, char * argv[]) {
   int listenfd;
-  int num = CHILD_NUM;
+  int num;
   int i;
-  idle_num = CHILD_NUM;
+  
+  if (argc < 2) {
+    print_usage();
+  }
+  
+  num = atoi(argv[1]);
+  idle_num = num;
+
+  fprintf(stdout, "%d Channels are running ... \n", num);
 
   listenfd = init_server();
   pids = (pid_t *)(malloc(sizeof(pid_t) * num));
@@ -58,4 +66,9 @@ static void sig_int(int signo) {
   while (wait(NULL) > 0); 
   free(pids);
   exit(0); 
+}
+
+static void print_usage() {
+  fprintf(stderr, "USAGE: searver [num] (the number of channels)\n");
+  exit(1);
 }

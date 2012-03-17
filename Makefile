@@ -20,13 +20,13 @@ else
 	CFLAGS += -O2
 endif
 
-ifeq ($(TYPE),fifo)
-	SERVER_OBJS += $(FIFO_DIR)/fifo.o
-	CLIENT_OBJS += $(FIFO_DIR)/fifo.o
-	CFLAGS += -DFIFO
-else
+ifeq ($(TYPE), socket)
 	SERVER_OBJS += $(SOCKET_DIR)/socket.o
 	CLIENT_OBJS += $(SOCKET_DIR)/socket.o
+else
+	SERVER_OBJS += $(FIFO_DIR)/fifo.o $(LIB_DIR)/lock.o
+	CLIENT_OBJS += $(FIFO_DIR)/fifo.o $(LIB_DIR)/lock.o
+	CFLAGS += -DFIFO
 endif
 
 
@@ -70,6 +70,9 @@ db.o: $(SERVER_DIR)/db.c
 
 c_transaction.o: $(CLIENT_DIR)/c_transaction.o
 	$(CC) $(CFLAGS) $< -o $(CLIENT_DIR)/c_transaction.o
+	
+lock.o: $(LIB_DIR)/lock.c
+	$(CC) $(CFLAGS) $< -o $(LIB_DIR)/lock.o
 
 clean:
 	rm -f *.o
