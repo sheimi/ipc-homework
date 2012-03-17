@@ -1,0 +1,212 @@
+<h1>IPC HOMEWORK</h1>
+
+<h2>Overview</h2>
+
+<p>It is the homework of "Linux Programming" and is about IPC (Inter Process Communication). </p>
+
+<p>And this homework has two versions:</p>
+
+<ul>
+<li>FIFO Version   (Stand-along)</li>
+<li>Socket Version (Network)</li>
+</ul>
+
+<h2>Make</h2>
+
+<h3>0. Before Make</h3>
+
+<p>Before make it, sqlite3 should be installed</p>
+
+<h3>1. Make Overview</h3>
+
+<pre><code>make [TYPE=socket] [DEBUG=1] [SQLITE={the path of sqlite (default: /usr/lib/sqlite3)}]
+</code></pre>
+
+<h3>2. To Make a FIFO Version</h3>
+
+<pre><code>make
+</code></pre>
+
+<h3>3. To Make a Socket Version</h3>
+
+<pre><code>make TYPE=socket
+</code></pre>
+
+<h3>4. To Make a Debug Version</h3>
+
+<pre><code>make DEBUG=1
+</code></pre>
+
+<h2>Run</h2>
+
+<pre><code>client
+
+server [num (the number of preforked process)]
+
+log file : data/ticket.log
+</code></pre>
+
+<h2>FIFO And Socket Interface</h2>
+
+<pre><code>Server Side: 
+  /*
+   *  to init the server, including:
+   *    open the public fifo or socket
+   */
+  int init_server();
+
+  /*
+   *  waiting for the connect from the server, including:
+   *    wait for the connection
+   *    dup the fifo or socket descriptors to two files 
+   *
+   */
+  int wait_client(); 
+
+Client Side:
+  /*
+   *  to init the fifo for socket client, including:
+   *    try to connect to the server
+   *    dup the descriptors to two files
+   *
+   */
+  init_client();
+  /*
+   *  to close the client, including:
+   *    try to close to descriptors
+   */
+  close_client();
+</code></pre>
+
+<h2>Server Design</h2>
+
+<h3>1. Concurrent</h3>
+
+<p>It is a Cocurent Server: Preforked Server, No Locking Around accept.</p>
+
+<pre><code>    +----------+                                +---------+
+    | client 1 |&lt;------------------------------&gt;| child 1 |&lt;-----------fork--------\
+    +----------+                                +---------+                         \
+                                                                                     \
+                                                                                      \
+    +----------+                                +---------+                            +-----------+
+    | client 2 |&lt;------------------------------&gt;| child 2 |&lt;-----------fork------------|   parent  |
+    +----------+                                +---------+                           /+-----------+
+                                                                                     /      ^
+                                                +---------+                         /       |
+                                                | child 3 |&lt;-----------fork--------/        |
+                                                +---------+                                 |
+                                                                                            |
+                                                  ......                                    |
+                                                                                            |
+                                                +---------+                                 |
+                                                | child 4 |&lt;-----------fork-----------------|
+                                                +---------+
+</code></pre>
+
+<h4>1.1 FIFO</h4>
+
+<p>Use a file lock to let the multiprocess "listen" to a file (read block)</p>
+
+<h4>1.2 SOCKET</h4>
+
+<p>Linux and BSD(4.4+) allow multiprocess accept a socket, so it doesn't
+need a file lock</p>
+
+<h2>Protocal Design</h2>
+
+<h3>1. Overview</h3>
+
+<p>The Protocal are implemented by Request and Response.
+Use string to communication and separated by blank</p>
+
+<h3>2. Request</h3>
+
+<pre><code>typedef enum _request_cmd {
+  LOGIN,  
+  REGISTER,
+  QUIT,
+  QUERY_STATIONS,
+  QUERY_TRAIN,
+  BUY_IT,
+  QUERY_ORDERS,
+  REFUND,
+} RequestCMD;
+
+typedef struct _request {
+  RequestCMD cmd;                   // The cmd type send from client
+  int param_num;                    // The the number of parameters 
+  char * params[MAX_PARAM_NUM];     // The parameters
+} Request;
+</code></pre>
+
+<h3>3. Response</h3>
+
+<pre><code>typedef enum _request_status {
+  SUCCESS,
+  FAILED,
+} ResponseStatus;
+
+typedef struct _response {
+  ResponseStatus rs;                // Response status from the server
+  int length;                       // The length of response data
+  char * data;                      // the reponse data
+} Response;
+</code></pre>
+
+<h2>Transaction Design</h2>
+
+<h3>1. The State Machie Model</h3>
+
+<pre><code>            +----------------+
+            |build Connection|-------------------------+
+            +----------------+                         |
+                    |                                  |
+                    v                                  v
+            +----------------+                     +-----------------+
+    +-----&gt; |  verify user   |--------------------&gt;| close connecton |
+    |       +----------------+                     +-----------------+
+    |failed    |    |                                  ^  ^
+    +----------+    |success                           |  |
+                    v                                  |  |
+            +---------------+                          |  |
+    +------&gt;|  user request |--------------------------+  |
+    |       +---------------+                             |
+    |               |                                     |
+    |continue       v                                     |
+    |       +---------------+                             |
+    +------&gt;| return result |-----------------------------+
+            +---------------+
+</code></pre>
+
+<h2>What's More</h2>
+
+<h3>1. What Have Been Implemented</h3>
+
+<ul>
+<li>fifo server</li>
+<li>fifo lock</li>
+<li>socket server</li>
+<li>concurrent server</li>
+<li><p>a simple process pool</p></li>
+<li><p>login</p></li>
+<li>register</li>
+<li>order a ticket</li>
+<li>query </li>
+<li>refund</li>
+<li>sell log (without lock)</li>
+</ul>
+
+<h3>2. ToDo List (Next Version)</h3>
+
+<ul>
+<li>log lock</li>
+<li>some other concurrent server model (select, asynchronize io(epoll), or fork .... ) </li>
+</ul>
+
+<h3>3. What Will Not Be Considered</h3>
+
+<ul>
+<li>user interface (GUI or TUI)</li>
+<li>more complex transaction </li>
+</ul>

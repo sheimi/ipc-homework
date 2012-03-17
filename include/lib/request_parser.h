@@ -17,9 +17,9 @@ typedef enum _request_cmd {
 } RequestCMD;
 
 typedef struct _request {
-  RequestCMD cmd;
-  int param_num;
-  char * params[MAX_PARAM_NUM];
+  RequestCMD cmd;                   // The cmd type send from client
+  int param_num;                    // The the number of parameters 
+  char * params[MAX_PARAM_NUM];     // The parameters
 } Request;
 
 typedef enum _request_status {
@@ -28,9 +28,9 @@ typedef enum _request_status {
 } ResponseStatus;
 
 typedef struct _response {
-  ResponseStatus rs;
-  int length;
-  char * data;
+  ResponseStatus rs;                // Response status from the server
+  int length;                       // The length of response data
+  char * data;                      // the reponse data
 } Response;
 
 

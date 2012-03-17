@@ -2,6 +2,7 @@
 #include <env.h>
 #include <stdio.h>
 #include <lib/request_parser.h>
+#include <stdlib.h>
 
 ClientState status;
 

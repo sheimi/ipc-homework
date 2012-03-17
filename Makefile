@@ -29,11 +29,15 @@ else
 	CFLAGS += -DFIFO
 endif
 
+ifeq ($(SQLITE),)
+	SQLITE = /usr/lib/sqlite3
+endif
+
 
 all: clean server client
 
 server: $(SERVER_OBJS)
-	$(CC) $(SERVER_OBJS) -o $(STARGET) -L /usr/lib/sqlite3 -lsqlite3
+	$(CC) $(SERVER_OBJS) -o $(STARGET) -L $(SQLITE) -lsqlite3
 
 client: $(CLIENT_OBJS)
 	$(CC) $(CLIENT_OBJS) -o $(CTARGET)
