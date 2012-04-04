@@ -9,8 +9,8 @@ LIB_DIR=lib
 FIFO_DIR=fifo
 SOCKET_DIR=socket
 
-SERVER_OBJS=$(LIB_DIR)/error.o $(LIB_DIR)/wrapper.o $(LIB_DIR)/readline.o $(LIB_DIR)/request_parser.o $(SERVER_DIR)/transaction.o $(SERVER_DIR)/db.o
-CLIENT_OBJS=$(LIB_DIR)/error.o $(LIB_DIR)/wrapper.o $(CLIENT_DIR)/client.o $(LIB_DIR)/readline.o $(LIB_DIR)/request_parser.o $(CLIENT_DIR)/c_transaction.o
+SERVER_OBJS=$(LIB_DIR)/error.o $(LIB_DIR)/wrapper.o $(LIB_DIR)/readline.o $(LIB_DIR)/request_parser.o $(SERVER_DIR)/transaction.o $(SERVER_DIR)/db.o $(LIB_DIR)/lock.o
+CLIENT_OBJS=$(LIB_DIR)/error.o $(LIB_DIR)/wrapper.o $(CLIENT_DIR)/client.o $(LIB_DIR)/readline.o $(LIB_DIR)/request_parser.o $(CLIENT_DIR)/c_transaction.o $(LIB_DIR)/lock.o
 STARGET=server
 CTARGET=client
 
@@ -21,8 +21,8 @@ else
 endif
 
 ifeq ($(TYPE), fifo)
-	SERVER_OBJS += $(FIFO_DIR)/fifo.o $(LIB_DIR)/lock.o
-	CLIENT_OBJS += $(FIFO_DIR)/fifo.o $(LIB_DIR)/lock.o
+	SERVER_OBJS += $(FIFO_DIR)/fifo.o 
+	CLIENT_OBJS += $(FIFO_DIR)/fifo.o
 	CFLAGS += -DFIFO
 else
 	SERVER_OBJS += $(SOCKET_DIR)/socket.o

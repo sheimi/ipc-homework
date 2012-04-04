@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <lib/request_parser.h>
 #include <server/transaction.h>
+#include <lib/lock.h>
 
 static pid_t child_make(int i, int listenfd);
 static void sig_int(int signo); 
@@ -32,7 +33,10 @@ int main(int argc, char * argv[]) {
   idle_num = num;
 
   fprintf(stdout, "%d Channels are running ... \n", num);
-
+  
+  //to lock the log file
+  lock_init(LOG_LOCK);
+  
   listenfd = init_server();
   pids = (pid_t *)(malloc(sizeof(pid_t) * num));
   for (i = 0; i < num; i++) {

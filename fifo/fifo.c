@@ -7,14 +7,14 @@
 #include <lib/lock.h>
 
 #define FIFO_DIR "/tmp/ticket"
-#define LOCK_FILE "/tmp/lock.fifo_ticket"
+#define FIFO_LOCK 0 
 
 static int dummyfd;
 
 int init_server() {
   int readfifo;
   int flags;
-  lock_init(LOCK_FILE);
+  lock_init(FIFO_LOCK);
   mkdir(FIFO_DIR, 0755);
   mkfifo_wrapper(SERV_FIFO, FIFO_MODE);
   //readfifo = open_wrapper(SERV_FIFO, O_RDONLY, 0); 
@@ -47,7 +47,7 @@ int wait_client(int fd) {
 
   //lock_file
   //waiting for request
-  lock_wait();
+  lock_wait(FIFO_LOCK);
 #ifdef DEBUG
   fprintf(stderr, "process %ld waiting\n", (long)getpid());
 #endif
@@ -79,7 +79,7 @@ int wait_client(int fd) {
   fprintf(stderr, "connection built ...\n");
 #endif
   //lock_release
-  lock_release();
+  lock_release(FIFO_LOCK);
 
   return 0;
 } 

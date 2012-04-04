@@ -5,6 +5,7 @@ What's New
 ----------
 
 +   Socket Version Server(fork and process pool)
++   log lock(make sure that there is only one process write to the log file)
 
 Overview
 ------------
@@ -214,10 +215,10 @@ What's More
 +   query 
 +   refund
 +   sell log (without lock)
++   log lock
 
 ### 2. ToDo List (Next Version)
 
-+   log lock
 +   some other concurrent server model (select, asynchronize io(epoll) .... ) 
 
 ### 3. What Will Not Be Considered 

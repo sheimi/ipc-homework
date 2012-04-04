@@ -5,31 +5,34 @@
 #include <lib/error.h>
 #include <errno.h>
 
-static struct flock lock_it, unlock_it;
-static int lock_fd = -1;
+#define LOCK_FILE "/tmp/lock.%d"
+#define MAX_LOCK 5
 
-void lock_init(char * pathname) {
+static struct flock lock_it[MAX_LOCK], unlock_it[MAX_LOCK];
+static int lock_fd[MAX_LOCK];
+
+void lock_init(int lock_num) {
   char lock_file[1024];
 
-  strncpy(lock_file, pathname, sizeof(lock_file));
-  lock_fd = mkstemp(lock_file);
+  sprintf(lock_file, LOCK_FILE, lock_num);
+  lock_fd[lock_num] = mkstemp(lock_file);
   //unlink the lock file
   unlink(lock_file);
-  lock_it.l_type = F_WRLCK;
-  lock_it.l_whence = SEEK_SET;
-  lock_it.l_start = 0;
-  lock_it.l_len = 0;
+  lock_it[lock_num].l_type = F_WRLCK;
+  lock_it[lock_num].l_whence = SEEK_SET;
+  lock_it[lock_num].l_start = 0;
+  lock_it[lock_num].l_len = 0;
 
-  unlock_it.l_type = F_UNLCK;
-  unlock_it.l_whence = SEEK_SET;
-  unlock_it.l_start = 0;
-  unlock_it.l_len = 0;
+  unlock_it[lock_num].l_type = F_UNLCK;
+  unlock_it[lock_num].l_whence = SEEK_SET;
+  unlock_it[lock_num].l_start = 0;
+  unlock_it[lock_num].l_len = 0;
 
 }
 
-void lock_wait() {
+void lock_wait(int lock_num) {
   int rc;
-  while ((rc = fcntl(lock_fd, F_SETLKW, &lock_it)) < 0) {
+  while ((rc = fcntl(lock_fd[lock_num], F_SETLKW, &lock_it[lock_num])) < 0) {
     if (errno == EINTR)
       continue;
     else
@@ -38,8 +41,8 @@ void lock_wait() {
 
 }
 
-void lock_release() {
-  if (fcntl(lock_fd, F_SETLKW, &unlock_it) < 0) {
+void lock_release(int lock_num) {
+  if (fcntl(lock_fd[lock_num], F_SETLKW, &unlock_it[lock_num]) < 0) {
     err_quit("error unlock wait");
   }
 }

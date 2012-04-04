@@ -2,10 +2,10 @@
 #include <lib/request_parser.h>
 #include <stdio.h>
 #include <server/db.h>
+#include <lib/lock.h>
 
 #define LOG_FILE "db/ticket.log"
 
-FILE * log_file;
 
 typedef enum _server_state {
   INIT,
@@ -23,9 +23,16 @@ static void buy_it(Request * request);
 static void query_orders();
 static void refund_orders(Request * request);
 
+void write_log(char * log_content) {
+  lock_wait(LOG_LOCK); 
+  FILE * log_file = fopen(LOG_FILE, "a");
+  fputs(log_content, log_file);
+  fclose(log_file);
+  lock_release(LOG_LOCK);
+}
+
 int start_transaction() {
 
-  log_file = fopen(LOG_FILE, "a");
 
   state = INIT;
   connect_db();
@@ -42,7 +49,6 @@ int start_transaction() {
         fprintf(stderr, "QUIT\n");
         state = IDLE;
         close_db();
-        fclose(log_file);
         return 0;
       case QUERY_STATIONS:
         query_stations();
@@ -135,7 +141,9 @@ static void buy_it(Request * request) {
   int rs;
   bool result = buy_ticket_db(request->params[0], request->params[1]);
   if (result) {
-    fprintf(log_file, "order: %s, %s, %s\n", username, request->params[0], request->params[1]); 
+    char log_content[256];
+    sprintf(log_content, "order: %s, %s, %s\n", username, request->params[0], request->params[1]);
+    write_log(log_content);
     rs = SUCCESS;
   } else {
     rs = FAILED;
@@ -167,7 +175,9 @@ static void refund_orders(Request * request) {
   int rs;
   bool result = delete_order_db(request->params[0]);
   if (result) {
-    fprintf(log_file, "refund: %s, %s\n", username, request->params[0]); 
+    char log_content[256];
+    sprintf(log_content, "refund: %s, %s\n", username, request->params[0]); 
+    write_log(log_content);
     rs = SUCCESS;
   } else {
     rs = FAILED;
