@@ -32,7 +32,7 @@ int wait_client(int listenfd) {
 
   readport = fdopen(connfd, "r");
   writeport = fdopen(connfd, "w");
-  return 0;
+  return connfd;
 } 
 
 

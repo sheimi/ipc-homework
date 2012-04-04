@@ -9,7 +9,7 @@ LIB_DIR=lib
 FIFO_DIR=fifo
 SOCKET_DIR=socket
 
-SERVER_OBJS=$(LIB_DIR)/error.o $(LIB_DIR)/wrapper.o $(SERVER_DIR)/server.o $(LIB_DIR)/readline.o $(LIB_DIR)/request_parser.o $(SERVER_DIR)/transaction.o $(SERVER_DIR)/db.o
+SERVER_OBJS=$(LIB_DIR)/error.o $(LIB_DIR)/wrapper.o $(LIB_DIR)/readline.o $(LIB_DIR)/request_parser.o $(SERVER_DIR)/transaction.o $(SERVER_DIR)/db.o
 CLIENT_OBJS=$(LIB_DIR)/error.o $(LIB_DIR)/wrapper.o $(CLIENT_DIR)/client.o $(LIB_DIR)/readline.o $(LIB_DIR)/request_parser.o $(CLIENT_DIR)/c_transaction.o
 STARGET=server
 CTARGET=client
@@ -20,13 +20,19 @@ else
 	CFLAGS += -O2
 endif
 
-ifeq ($(TYPE), socket)
-	SERVER_OBJS += $(SOCKET_DIR)/socket.o
-	CLIENT_OBJS += $(SOCKET_DIR)/socket.o
-else
+ifeq ($(TYPE), fifo)
 	SERVER_OBJS += $(FIFO_DIR)/fifo.o $(LIB_DIR)/lock.o
 	CLIENT_OBJS += $(FIFO_DIR)/fifo.o $(LIB_DIR)/lock.o
 	CFLAGS += -DFIFO
+else
+	SERVER_OBJS += $(SOCKET_DIR)/socket.o
+	CLIENT_OBJS += $(SOCKET_DIR)/socket.o
+endif
+
+ifeq ($(SERVER), fork)
+	SERVER_OBJS += $(SERVER_DIR)/fork_server.o
+else
+	SERVER_OBJS += $(SERVER_DIR)/server.o
 endif
 
 ifeq ($(SQLITE),)
@@ -44,6 +50,9 @@ client: $(CLIENT_OBJS)
 
 server.o: $(SERVER_DIR)/server.c
 	$(CC) $(CFLAGS) $< -o $(SERVER_DIR)/server.o
+
+fork_server.o: $(SERVER_DIR)/fork_server.c
+	$(CC) $(CFLAGS) $< -o $(SERVER_DIR)/fork_server.o
 
 client.o: $(CLIENT_DIR)/client.c
 	$(CC) $(CFLAGS) $< -o $(CLIENT_DIR)/client.o

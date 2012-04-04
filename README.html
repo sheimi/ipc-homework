@@ -1,5 +1,11 @@
 <h1>IPC HOMEWORK</h1>
 
+<h2>What's New</h2>
+
+<ul>
+<li>Socket Version Server(fork and process pool)</li>
+</ul>
+
 <h2>Overview</h2>
 
 <p>It is the homework of "Linux Programming" and is about IPC (Inter Process Communication). </p>
@@ -19,20 +25,25 @@
 
 <h3>1. Make Overview</h3>
 
-<pre><code>make [TYPE=socket] [DEBUG=1] [SQLITE={the path of sqlite (default: /usr/lib/sqlite3)}]
+<pre><code>make [SERVER=[fork/pool(default: pool)](socket only)] [TYPE=[fifo/socket](default: socket)] [DEBUG=1] [SQLITE={the path of sqlite (default: /usr/lib/sqlite3)}]
 </code></pre>
 
 <h3>2. To Make a FIFO Version</h3>
 
+<pre><code>make TYPE=fifo
+</code></pre>
+
+<h3>3. To Make a Socket Version with process pool</h3>
+
 <pre><code>make
 </code></pre>
 
-<h3>3. To Make a Socket Version</h3>
+<h3>4. To Make a Socket Version with normal fork</h3>
 
-<pre><code>make TYPE=socket
+<pre><code>make SERVER=fork
 </code></pre>
 
-<h3>4. To Make a Debug Version</h3>
+<h3>5. To Make a Debug Version</h3>
 
 <pre><code>make DEBUG=1
 </code></pre>
@@ -191,6 +202,7 @@ typedef struct _response {
 <li>fifo server</li>
 <li>fifo lock</li>
 <li>socket server</li>
+<li>normal fork socket server</li>
 <li>concurrent server</li>
 <li><p>a simple process pool</p></li>
 <li><p>login</p></li>
@@ -205,7 +217,7 @@ typedef struct _response {
 
 <ul>
 <li>log lock</li>
-<li>some other concurrent server model (select, asynchronize io(epoll), or fork .... ) </li>
+<li>some other concurrent server model (select, asynchronize io(epoll) .... ) </li>
 </ul>
 
 <h3>3. What Will Not Be Considered</h3>

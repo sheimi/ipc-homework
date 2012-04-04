@@ -1,6 +1,11 @@
 IPC HOMEWORK
 ============
 
+What's New
+----------
+
++   Socket Version Server(fork and process pool)
+
 Overview
 ------------
 
@@ -20,17 +25,21 @@ Before make it, sqlite3 should be installed
     
 ### 1. Make Overview
     
-    make [TYPE=socket] [DEBUG=1] [SQLITE={the path of sqlite (default: /usr/lib/sqlite3)}]
+    make [SERVER=[fork/pool(default: pool)](socket only)] [TYPE=[fifo/socket](default: socket)] [DEBUG=1] [SQLITE={the path of sqlite (default: /usr/lib/sqlite3)}]
 
 ### 2. To Make a FIFO Version
 
+    make TYPE=fifo
+
+### 3. To Make a Socket Version with process pool
+
     make
 
-### 3. To Make a Socket Version
+### 4. To Make a Socket Version with normal fork 
 
-    make TYPE=socket
+    make SERVER=fork
 
-### 4. To Make a Debug Version
+### 5. To Make a Debug Version
 
     make DEBUG=1
 
@@ -195,6 +204,7 @@ What's More
 +   fifo server
 +   fifo lock
 +   socket server
++   normal fork socket server
 +   concurrent server
 +   a simple process pool
 
@@ -208,7 +218,7 @@ What's More
 ### 2. ToDo List (Next Version)
 
 +   log lock
-+   some other concurrent server model (select, asynchronize io(epoll), or fork .... ) 
++   some other concurrent server model (select, asynchronize io(epoll) .... ) 
 
 ### 3. What Will Not Be Considered 
 
